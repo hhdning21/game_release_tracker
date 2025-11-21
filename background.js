@@ -58,47 +58,74 @@ async function checkAllPrices() {
     
     for (const [id, game] of Object.entries(games)) {
         try {
-            const lookupUrl = `https://www.cheapshark.com/api/1.0/games?id=${id}`;
-            const response = await fetch(lookupUrl);
+            // Use the title search instead, as it's more reliable
+            const searchUrl = `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(game.title)}&limit=5`;
+            const response = await fetch(searchUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error ${response.status}`);
+            }
+            
             const data = await response.json();
             
-            if (data && data.deals && data.deals.length > 0) {
-                const bestDeal = data.deals.reduce((best, deal) => {
-                    return parseFloat(deal.price) < parseFloat(best.price) ? deal : best;
-                });
+            // Find the exact game match
+            const gameMatch = data.find(g => g.gameID === id) || data[0];
+            
+            if (gameMatch) {
+                const currentPrice = parseFloat(gameMatch.cheapest);
                 
-                const currentPrice = parseFloat(bestDeal.price);
-                
+                // Check if price dropped below target
                 if (currentPrice <= game.targetPrice && currentPrice < game.currentPrice) {
                     // Price drop detected!
                     chrome.notifications.create({
                         type: 'basic',
                         iconUrl: 'icon48.png',
                         title: '🎉 Price Drop Alert!',
-                        message: `${game.title} is now $${currentPrice.toFixed(2)} (Target: $${game.targetPrice.toFixed(2)})`,
+                        message: `${game.title} is now ${currentPrice.toFixed(2)} (was ${game.currentPrice.toFixed(2)})`,
                         priority: 2,
                         requireInteraction: true
                     });
+                    
+                    console.log(`Price drop: ${game.title} - ${currentPrice}`);
                 }
                 
-                // Update stored price
+                // Always update current price
                 games[id].currentPrice = currentPrice;
+                games[id].lastChecked = Date.now();
             }
         } catch (error) {
-            console.error('Error checking price for', game.title, error);
+            console.error('Error checking price for', game.title, ':', error.message);
+            // Mark as checked even if failed
+            games[id].lastChecked = Date.now();
+            games[id].lastError = error.message;
         }
     }
     
     // Save updated prices
     await chrome.storage.local.set({ trackedGames: games });
+    console.log('Price check completed at', new Date().toLocaleTimeString());
 }
 
 // Check prices when extension starts
 chrome.runtime.onStartup.addListener(() => {
+    console.log('Extension started, checking prices...');
     checkAllPrices();
 });
 
 // Also check on install
 chrome.runtime.onInstalled.addListener(() => {
+    console.log('Extension installed, setting up alarms...');
     checkAllPrices();
+});
+
+// Manual trigger for testing (optional)
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'searchGames') {
+        searchGames(request.query).then(sendResponse);
+        return true;
+    }
+    if (request.action === 'checkPricesNow') {
+        checkAllPrices().then(() => sendResponse({ success: true }));
+        return true;
+    }
 });
