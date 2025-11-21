@@ -1,0 +1,30 @@
+{
+    "manifest_version": 3,
+    "name": "Game Price Tracker",
+    "version": "1.0",
+    "description": "Track game prices and get notified of sales and price drops",
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+      }
+    },
+    "permissions": [
+      "storage",
+      "notifications",
+      "alarms"
+    ],
+    "host_permissions": [
+      "https://api.isthereanydeal.com/*"
+    ],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "icons": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  }

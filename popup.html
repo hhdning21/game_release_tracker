@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 500px;
+            max-height: 600px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-y: auto;
+        }
+        
+        .container {
+            padding: 20px;
+        }
+        
+        h1 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .tab.active {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .search-section {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .add-btn {
+            background: #10b981;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        .add-btn:hover {
+            background: #059669;
+        }
+        
+        .results {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .game-result {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            color: white;
+        }
+        
+        .game-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .game-price {
+            font-size: 18px;
+            color: #86efac;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .game-details {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .tracked-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 4px solid rgba(255,255,255,0.5);
+        }
+        
+        .tracked-item {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .tracked-info {
+            flex: 1;
+        }
+        
+        .tracked-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+        
+        .tracked-price {
+            color: #86efac;
+            font-size: 12px;
+        }
+        
+        .remove-btn {
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .remove-btn:hover {
+            background: #dc2626;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            padding: 20px;
+            font-size: 13px;
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        
+        .loading {
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        .price-input {
+            width: 100%;
+            margin-top: 5px;
+            padding: 8px;
+            font-size: 13px;
+        }
+        
+        .label {
+            color: white;
+            font-size: 11px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .link-list {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .link-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+        
+        .link-card:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .link-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .link-desc {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+        
+        .subsection-title {
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Game Price Tracker</h1>
+        <p class="subtitle">Track prices, get alerts & find deals</p>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="tracker">📊 Tracker</button>
+            <button class="tab" data-tab="links">🔗 Quick Links</button>
+        </div>
+        
+        <!-- Price Tracker Tab -->
+        <div id="tracker-tab" class="tab-content active">
+            <div class="search-section">
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="Search game name...">
+                    <button class="search-btn" id="searchBtn">🔍</button>
+                </div>
+                <div id="searchResults"></div>
+            </div>
+            
+            <div class="tracked-list">
+                <div class="section-title">📌 Tracked Games (<span id="trackedCount">0</span>)</div>
+                <div id="trackedGames"></div>
+            </div>
+        </div>
+        
+        <!-- Quick Links Tab -->
+        <div id="links-tab" class="tab-content">
+            <div class="subsection-title">🔥 Current Sales & Deals</div>
+            <div class="link-list">
+                <a href="https://store.steampowered.com/specials" target="_blank" class="link-card">
+                    <div class="link-title">Steam Specials</div>
+                    <div class="link-desc">Browse all current deals on Steam</div>
+                </a>
+                
+                <a href="https://www.epicgames.com/store/en-US/sales-and-specials" target="_blank" class="link-card">
+                    <div class="link-title">Epic Games Sales</div>
+                    <div class="link-desc">Epic Store promotions & free games</div>
+                </a>
+                
+                <a href="https://www.humblebundle.com/" target="_blank" class="link-card">
+                    <div class="link-title">Humble Bundle</div>
+                    <div class="link-desc">Game bundles & charity deals</div>
+                </a>
+            </div>
+            
+            <div class="subsection-title">📅 Upcoming Releases</div>
+            <div class="link-list">
+                <a href="https://store.steampowered.com/search/?filter=comingsoon" target="_blank" class="link-card">
+                    <div class="link-title">Steam Coming Soon</div>
+                    <div class="link-desc">Upcoming games on Steam</div>
+                </a>
+                
+                <a href="https://www.metacritic.com/browse/game/" target="_blank" class="link-card">
+                    <div class="link-title">Metacritic Games</div>
+                    <div class="link-desc">New releases & reviews</div>
+                </a>
+            </div>
+            
+            <div class="subsection-title">🔍 Price Comparison</div>
+            <div class="link-list">
+                <a href="https://isthereanydeal.com/" target="_blank" class="link-card">
+                    <div class="link-title">IsThereAnyDeal</div>
+                    <div class="link-desc">Track prices across all stores</div>
+                </a>
+                
+                <a href="https://gg.deals/" target="_blank" class="link-card">
+                    <div class="link-title">GG.deals</div>
+                    <div class="link-desc">Game deals aggregator</div>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
